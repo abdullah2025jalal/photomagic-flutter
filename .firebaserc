@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "photomagic-2a69e"
+  },
+  "targets": {
+    "photomagic-2a69e": {
+      "hosting": {
+        "photomagic-flutter": ["photomagic-flutter"]
+      }
+    }
+  }
+}

@@ -1,0 +1,73 @@
+name: Deploy PhotoMagic Flutter Web (Firebase Hosting)
+
+# Builds the Flutter web bundle and publishes it to Firebase Hosting as its
+# own site (photomagic-flutter) in the PhotoMagic project (photomagic-2a69e)
+# -> https://photomagic-flutter.web.app — the same web.app family as
+# https://nanostation-aligner.web.app.
+#
+# Auth: the FIREBASE_SERVICE_ACCOUNT repository secret must hold a
+# service-account JSON key (Firebase Hosting Admin) from photomagic-2a69e.
+# The key is never committed.
+#
+# Dispatch-only while the secret is not yet configured — a push would
+# otherwise produce a failing run by design (same policy as ge-photo).
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Build web & deploy to Firebase Hosting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.0'
+          channel: stable
+          cache: true
+
+      - name: Pub Get
+        run: flutter pub get
+
+      - name: Build Web (site root)
+        run: flutter build web --release --pwa-strategy=none
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Verify service account secret
+        env:
+          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$SA" ]; then
+            echo "::error title=Missing secret::Add a repository secret named FIREBASE_SERVICE_ACCOUNT containing a service-account JSON key (Hosting Admin) from the photomagic-2a69e project."
+            exit 1
+          fi
+          printf '%s' "$SA" > "$RUNNER_TEMP/firebase-sa.json"
+          echo "Service account key written."
+
+      - name: Ensure hosting site exists (best effort)
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-sa.json
+        run: |
+          npx --yes firebase-tools@13.29.1 hosting:sites:create photomagic-flutter \
+            --project photomagic-2a69e --non-interactive || true
+
+      - name: Deploy to Firebase Hosting
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-sa.json
+        run: >
+          npx --yes firebase-tools@13.29.1 deploy
+          --only hosting:photomagic-flutter
+          --project photomagic-2a69e
+          --non-interactive

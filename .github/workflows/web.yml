@@ -1,0 +1,58 @@
+name: Build & Deploy Flutter Web (GitHub Pages)
+
+# Builds the Flutter web bundle on GitHub and publishes it to GitHub Pages:
+# https://abdullah2025jalal.github.io/photomagic-flutter/
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    name: Build web & publish to Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.0'
+          channel: stable
+          cache: true
+
+      - name: Pub Get
+        run: flutter pub get
+
+      - name: Build Web
+        run: >
+          flutter build web --release
+          --base-href="/photomagic-flutter/"
+          --pwa-strategy=none
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

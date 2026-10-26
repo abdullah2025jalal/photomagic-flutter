@@ -1,0 +1,64 @@
+name: photomagic
+description: >-
+  PhotoMagic — a Flutter application mirroring the PhotoMagic web app exactly:
+  login against the same Realtime Database account contract, the A4 photo-grid
+  studio (items, paper preview, 300 DPI pages) and Word (.docx) export with
+  native OS sharing.
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # REST reads of the Realtime Database (same contract as the web build; no
+  # SDK registration needed — that is how the companion webapps behave).
+  http: ^1.2.2
+
+  # sha256 for the legacy account hash + PBKDF2 for the matter.
+  crypto: ^3.0.3
+
+  # PBKDF2-HMAC-SHA256 key derivation (v2$... account hash format) using
+  # the SAME salt-bytes rule: salt is used exactly as its string bytes.
+  pointycastle: ^3.9.1
+
+  # Building the .docx zip container (word/document.xml + media).
+  archive: ^3.6.1
+
+  # Picking the photos / document faces.
+  image_picker: ^1.1.2
+
+  # Native OS share sheet for the .docx and 300 DPI pages.
+  share_plus: ^10.1.2
+
+  # Session, lock, theme, language + install-rectangle dismiss state.
+  shared_preferences: ^2.3.2
+
+  # Opening the WhatsApp / Telegram / mailto contact destinations.
+  url_launcher: ^6.3.1
+
+  # Writing the "download" output (.docx / page PNG) to app documents.
+  path_provider: ^2.1.4
+
+  # The exact same brand glyph paths the web app draws inline (SVG assets
+  # extracted verbatim from the Android vectors + tinted per channel).
+  flutter_svg: ^2.0.10+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/branding/app_logo.png
+    - assets/icons/icon-192.png
+    - assets/icons/icon-512.png
+    - assets/icons/ic_whatsapp.svg
+    - assets/icons/ic_telegram.svg
+    - assets/icons/ic_email.svg
