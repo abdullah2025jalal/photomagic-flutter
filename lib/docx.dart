@@ -81,7 +81,7 @@ Future<DocxPayload> buildDocx(
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">''';
   for (final face in faces) {
     rels +=
-        '<Relationship Id="${face.relId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/image_${face.img + 1}.png"/>';
+        '<Relationship Id="${face.relId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/image_${face.imgIndex + 1}.png"/>';
   }
   rels += '</Relationships>';
   archive.addFile(ar.ArchiveFile.string('word/_rels/document.xml.rels', rels));
@@ -114,6 +114,9 @@ Future<DocxPayload> buildDocx(
   archive.addFile(ar.ArchiveFile.string('word/document.xml', doc));
 
   final zipped = ar.ZipEncoder().encode(archive);
+  if (zipped == null) {
+    throw StateError('ZipEncoder returned a null archive');
+  }
   final name = 'PhotoMagic_A4_${DateTime.now().millisecondsSinceEpoch}.docx';
   return DocxPayload(Uint8List.fromList(zipped), name);
 }

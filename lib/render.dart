@@ -8,7 +8,7 @@ library;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart' show CustomPainter, Canvas, Offset, Paint, Rect, Path, FilterQuality, PaintingStyle;
+import 'package:flutter/material.dart' show CustomPainter, Canvas, Offset, Paint, Rect, Path, FilterQuality, PaintingStyle, Color, Size;
 
 import 'model.dart';
 

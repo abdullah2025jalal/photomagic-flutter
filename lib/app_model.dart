@@ -341,18 +341,16 @@ class AppModel extends ChangeNotifier {
   /// 'shared' | 'cancelled' | 'unsupported' | 'failed' (webapp contract).
   Future<String> tryNativeFileShare(DocxPayload payload) async {
     try {
-      final result = await SharePlus.instance.share(
-        ShareParams(
-          files: [
-            XFile.fromData(
-              payload.bytes,
-              name: payload.name,
-              mimeType: kMimeDocx,
-            ),
-          ],
-          title: 'PhotoMagic',
-          text: t('shareDocxText'),
-        ),
+      final result = await Share.shareXFiles(
+        [
+          XFile.fromData(
+            payload.bytes,
+            name: payload.name,
+            mimeType: kMimeDocx,
+          ),
+        ],
+        title: 'PhotoMagic',
+        text: t('shareDocxText'),
       );
       switch (result.status) {
         case ShareResultStatus.success:
