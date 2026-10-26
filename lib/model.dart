@@ -191,7 +191,7 @@ Plan computePlan(List<PmItem> items) {
 /// the same hash idea as the web-built planKey (used for the warm cache).
 String planKey(Plan plan) {
   final sb = StringBuffer('v1_${plan.totalPages}_');
-  plan.placed.forEach((p) {
+  for (final p in plan.placed) {
     sb
       ..write(p.item.id)
       ..write('_')
@@ -203,6 +203,6 @@ String planKey(Plan plan) {
       ..write('_')
       ..write((p.y * 1000).round())
       ..write('-');
-  });
+  }
   return sb.toString();
 }

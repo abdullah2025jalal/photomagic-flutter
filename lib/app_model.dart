@@ -6,7 +6,6 @@
 library;
 
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
@@ -118,8 +117,6 @@ class AppModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  MonitorStatus? _debugLastStatus; // kept for dev introspection only
-
   /// 30 s monitor — same dead rules as the web build. Transient network
   /// failures keep the session (optimistic) and the next tick re-checks.
   void startMonitor() {
@@ -141,11 +138,11 @@ class AppModel extends ChangeNotifier {
           final dead = account is! Map ||
               (suspended && (suspendedUntil <= 0 || now < suspendedUntil)) ||
               (!permanent && expiry > 0 && now >= expiry);
-          _debugLastStatus = dead ? MonitorStatus.dead : MonitorStatus.alive;
           if (dead) _endSession(true);
           return;
         } catch (_) {
-          _debugLastStatus = MonitorStatus.networkError;
+          // Transient network failure: keep the session (optimistic), the
+          // next tick re-checks — the same behavior as the web build.
         }
       },
     );
@@ -349,7 +346,7 @@ class AppModel extends ChangeNotifier {
             mimeType: kMimeDocx,
           ),
         ],
-        title: 'PhotoMagic',
+        subject: 'PhotoMagic',
         text: t('shareDocxText'),
       );
       switch (result.status) {
@@ -370,5 +367,3 @@ class AppModel extends ChangeNotifier {
   Future<String> saveOutFile(String name, Uint8List bytes) =>
       writeOutFile(name, bytes);
 }
-
-enum MonitorStatus { alive, dead, networkError }
